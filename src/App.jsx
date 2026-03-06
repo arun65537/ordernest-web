@@ -1,12 +1,15 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Landing from "./pages/Landing";
+import AdminLogin from "./pages/AdminLogin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
 import OrderDetails from "./pages/OrderDetails";
+import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { isAuthenticated } from "./utils/auth";
+import AdminRoute from "./routes/AdminRoute";
+import { getPostLoginPath, isAdmin, isAuthenticated } from "./utils/auth";
 
 export default function App() {
   return (
@@ -14,7 +17,11 @@ export default function App() {
       <Route path="/" element={<Landing />} />
       <Route
         path="/login"
-        element={isAuthenticated() ? <Navigate to="/products" replace /> : <Login />}
+        element={isAuthenticated() ? <Navigate to={getPostLoginPath()} replace /> : <Login />}
+      />
+      <Route
+        path="/admin/login"
+        element={isAdmin() ? <Navigate to="/admin" replace /> : isAuthenticated() ? <Navigate to="/products" replace /> : <AdminLogin />}
       />
       <Route path="/register" element={<Register />} />
       <Route
@@ -42,11 +49,11 @@ export default function App() {
         }
       />
       <Route
-        path="/dashboard"
+        path="/admin"
         element={
-          <ProtectedRoute>
-            <Navigate to="/products" replace />
-          </ProtectedRoute>
+          <AdminRoute>
+            <Dashboard />
+          </AdminRoute>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />

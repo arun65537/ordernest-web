@@ -2,7 +2,7 @@ import type { Uuid } from "./common";
 
 export type OrderStatus = "CREATED" | "PENDING" | "SUCCESS" | "FAILED" | "CONFIRMED" | "CANCELLED";
 
-export type PaymentStatus = "PENDING" | "SUCCESS" | "PAID" | "FAILED";
+export type PaymentStatus = "PENDING" | "SUCCESS" | "PAID" | "FAILED" | "REFUNDED";
 
 export interface CreateOrderRequest {
   item: {

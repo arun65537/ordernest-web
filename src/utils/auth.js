@@ -6,7 +6,8 @@ function extractToken(payload) {
 }
 
 export function getAuth() {
-  return null;
+  const token = getToken();
+  return token ? { token } : null;
 }
 
 export function getToken() {
@@ -55,4 +56,47 @@ export function clearToken() {
 
 export function isAuthenticated() {
   return Boolean(getToken());
+}
+
+function decodeBase64Url(value) {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padding = normalized.length % 4 === 0 ? "" : "=".repeat(4 - (normalized.length % 4));
+  return atob(normalized + padding);
+}
+
+export function getTokenPayload(token = getToken()) {
+  if (!token) {
+    return null;
+  }
+
+  const parts = token.split(".");
+  if (parts.length < 2) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(decodeBase64Url(parts[1]));
+  } catch {
+    return null;
+  }
+}
+
+export function getUserRole(token = getToken()) {
+  const payload = getTokenPayload(token);
+  const role = payload?.role;
+
+  if (!role || typeof role !== "string") {
+    return null;
+  }
+
+  const normalized = role.trim().toUpperCase();
+  return normalized.startsWith("ROLE_") ? normalized.slice(5) : normalized;
+}
+
+export function isAdmin(token = getToken()) {
+  return getUserRole(token) === "ADMIN";
+}
+
+export function getPostLoginPath(token = getToken()) {
+  return isAdmin(token) ? "/admin" : "/products";
 }

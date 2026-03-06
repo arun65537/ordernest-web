@@ -19,7 +19,8 @@ const PAYMENT_STATUS = Object.freeze({
   PENDING: "PENDING",
   SUCCESS: "SUCCESS",
   PAID: "PAID",
-  FAILED: "FAILED"
+  FAILED: "FAILED",
+  REFUNDED: "REFUNDED"
 });
 
 export default function OrderDetails() {
@@ -34,6 +35,8 @@ export default function OrderDetails() {
   const [paymentError, setPaymentError] = useState("");
   const [paymentInitiated, setPaymentInitiated] = useState(false);
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
+  const [cancelSubmitting, setCancelSubmitting] = useState(false);
+  const [cancelError, setCancelError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const currentOrderStatus = order?.status || "UNKNOWN";
 
@@ -98,7 +101,7 @@ export default function OrderDetails() {
   }, [fetchOrder]);
 
   const handlePayNow = async () => {
-    if (!order?.orderId || paymentSubmitting || paymentInitiated) {
+    if (!order?.orderId || paymentSubmitting || paymentInitiated || cancelSubmitting) {
       return;
     }
 
@@ -118,6 +121,32 @@ export default function OrderDetails() {
       setPaymentError(err?.response?.data?.message || "Unable to initiate payment. Please try again.");
     } finally {
       setPaymentSubmitting(false);
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!order?.orderId || cancelSubmitting || currentOrderStatus === ORDER_STATUS.CANCELLED) {
+      return;
+    }
+
+    setCancelError("");
+    setPaymentError("");
+    setCancelSubmitting(true);
+
+    try {
+      const { data } = await orderApi.post(`/api/orders/${order.orderId}/cancel`);
+      setOrder(data);
+      setPaymentStatus(data?.paymentStatus || "");
+      setPaymentInitiated(false);
+    } catch (err) {
+      if (err?.response?.status === 401 || err?.response?.status === 403) {
+        clearToken();
+        navigate("/login", { replace: true });
+        return;
+      }
+      setCancelError(err?.response?.data?.message || "Unable to cancel order. Please try again.");
+    } finally {
+      setCancelSubmitting(false);
     }
   };
 
@@ -168,8 +197,10 @@ export default function OrderDetails() {
         ? "bg-amber-100 text-amber-800 border-amber-200"
         : displayPaymentStatus === "PAYMENT INITIATED"
           ? "bg-blue-100 text-blue-800 border-blue-200"
-        : displayPaymentStatus === PAYMENT_STATUS.FAILED
+      : displayPaymentStatus === PAYMENT_STATUS.FAILED
           ? "bg-rose-100 text-rose-800 border-rose-200"
+        : displayPaymentStatus === PAYMENT_STATUS.REFUNDED
+          ? "bg-sky-100 text-sky-800 border-sky-200"
         : "bg-slate-100 text-slate-700 border-slate-200";
 
   const orderBadgeClass =
@@ -224,6 +255,19 @@ export default function OrderDetails() {
                 <div className={`mt-3 inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${orderBadgeClass}`}>
                   {currentOrderStatus}
                 </div>
+                {currentOrderStatus !== ORDER_STATUS.CANCELLED && (
+                  <button
+                    type="button"
+                    onClick={handleCancelOrder}
+                    disabled={cancelSubmitting}
+                    className="mt-4 w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {cancelSubmitting ? "Cancelling Order..." : "Cancel Order"}
+                  </button>
+                )}
+                {cancelError && (
+                  <p className="mt-3 rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{cancelError}</p>
+                )}
                 <dl className="mt-4 space-y-2 rounded-xl bg-slate-50 p-3 text-sm">
                   <div className="flex items-start justify-between gap-3">
                     <dt className="text-slate-500">Product Name</dt>
@@ -250,11 +294,11 @@ export default function OrderDetails() {
                 {paymentError && (
                   <p className="mt-3 rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{paymentError}</p>
                 )}
-                {currentPaymentStatus === PAYMENT_STATUS.PENDING && (
+                {currentPaymentStatus === PAYMENT_STATUS.PENDING && currentOrderStatus !== ORDER_STATUS.CANCELLED && (
                   <button
                     type="button"
                     onClick={handlePayNow}
-                    disabled={paymentSubmitting || paymentInitiated}
+                    disabled={paymentSubmitting || paymentInitiated || cancelSubmitting}
                     className="mt-4 w-full rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {paymentSubmitting ? "Initiating Payment..." : paymentInitiated ? "Payment Initiated" : "Pay Now"}
