@@ -83,12 +83,13 @@ export function getTokenPayload(token = getToken()) {
 
 export function getUserRole(token = getToken()) {
   const payload = getTokenPayload(token);
-  const role = payload?.role;
-
-  if (!role || typeof role !== "string") {
-    return null;
-  }
-
+  const roleFromSingleClaim = typeof payload?.role === "string" ? payload.role : null;
+  const roleFromArrayClaim =
+    Array.isArray(payload?.roles) && payload.roles.length > 0 && typeof payload.roles[0] === "string"
+      ? payload.roles[0]
+      : null;
+  const role = roleFromSingleClaim || roleFromArrayClaim;
+  if (!role) return null;
   const normalized = role.trim().toUpperCase();
   return normalized.startsWith("ROLE_") ? normalized.slice(5) : normalized;
 }

@@ -7,13 +7,15 @@ export interface LoginResponse {
   token?: string;
   jwt?: string;
   accessToken?: string;
+  refreshToken?: string;
+  roles?: string[];
 }
 
 export interface RegisterRequest {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface RegisterResponse {

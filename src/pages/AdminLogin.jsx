@@ -26,7 +26,7 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const { data } = await api.post("/api/auth/login", form);
+      const { data } = await api.post("/auth/login", form);
       const token = data?.token ?? data?.jwt ?? data?.accessToken;
 
       if (!token) {

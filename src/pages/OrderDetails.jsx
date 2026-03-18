@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import orderApi from "../api/orderAxios";
 import paymentApi from "../api/paymentAxios";
-import api from "../api/axios";
-import { clearToken } from "../utils/auth";
+import { clearToken, getTokenPayload } from "../utils/auth";
 import { formatCurrency } from "../utils/formatters";
 
 const RAZORPAY_CHECKOUT_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
@@ -40,7 +39,7 @@ const ORDER_STATUS = Object.freeze({
 });
 
 const PAYMENT_STATUS = Object.freeze({
-  PENDING: "PENDING",
+  UNPAID: "UNPAID",
   SUCCESS: "SUCCESS",
   PAID: "PAID",
   FAILED: "FAILED",
@@ -74,10 +73,7 @@ export default function OrderDetails() {
       setError("");
       setUserError("");
       try {
-        const [orderResult, userResult] = await Promise.allSettled([
-          orderApi.get(`/api/orders/${orderId}`),
-          api.get("/api/auth/me")
-        ]);
+        const [orderResult] = await Promise.allSettled([orderApi.get(`/api/orders/${orderId}`)]);
 
         if (orderResult.status === "rejected") {
           throw orderResult.reason;
@@ -85,19 +81,16 @@ export default function OrderDetails() {
 
         setOrder(orderResult.value.data);
         setPaymentStatus(orderResult.value.data?.paymentStatus || "");
-        if (orderResult.value.data?.paymentStatus !== PAYMENT_STATUS.PENDING) {
+        if (orderResult.value.data?.paymentStatus !== PAYMENT_STATUS.UNPAID) {
           setPaymentInitiated(false);
         }
 
-        if (userResult.status === "fulfilled") {
-          setUser(userResult.value.data || null);
-        } else {
-          setUserError(
-            userResult.reason?.response?.data?.error ||
-              userResult.reason?.response?.data?.message ||
-              "Unable to load user details."
-          );
-        }
+        const tokenPayload = getTokenPayload();
+        setUser({
+          email: tokenPayload?.email || "",
+          firstName: "",
+          lastName: ""
+        });
       } catch (err) {
         if (err?.response?.status === 401 || err?.response?.status === 403) {
           clearToken();
@@ -272,11 +265,11 @@ export default function OrderDetails() {
 
   const currentPaymentStatus = paymentStatus || order?.paymentStatus || "UNKNOWN";
   const displayPaymentStatus =
-    paymentInitiated && currentPaymentStatus === PAYMENT_STATUS.PENDING ? "PAYMENT INITIATED" : currentPaymentStatus;
+    paymentInitiated && currentPaymentStatus === PAYMENT_STATUS.UNPAID ? "PAYMENT INITIATED" : currentPaymentStatus;
   const paymentBadgeClass =
     displayPaymentStatus === PAYMENT_STATUS.PAID || displayPaymentStatus === PAYMENT_STATUS.SUCCESS
       ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-      : displayPaymentStatus === PAYMENT_STATUS.PENDING
+      : displayPaymentStatus === PAYMENT_STATUS.UNPAID
         ? "bg-amber-100 text-amber-800 border-amber-200"
         : displayPaymentStatus === "PAYMENT INITIATED"
           ? "bg-blue-100 text-blue-800 border-blue-200"
@@ -396,7 +389,7 @@ export default function OrderDetails() {
                   <div className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${paymentBadgeClass}`}>
                     {displayPaymentStatus}
                   </div>
-                  {currentPaymentStatus === PAYMENT_STATUS.PENDING && currentOrderStatus !== ORDER_STATUS.CANCELLED && (
+                  {currentPaymentStatus === PAYMENT_STATUS.UNPAID && currentOrderStatus !== ORDER_STATUS.CANCELLED && (
                     <button
                       type="button"
                       onClick={handlePayNow}

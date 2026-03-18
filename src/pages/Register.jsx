@@ -59,7 +59,10 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await api.post("/api/auth/register", form);
+      await api.post("/auth/register", {
+        email: form.email,
+        password: form.password
+      });
       navigate("/login", { replace: true });
     } catch (err) {
       const message =
