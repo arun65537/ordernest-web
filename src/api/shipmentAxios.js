@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getToken } from "../utils/auth";
 
-const fallbackShipmentBaseUrl = "https://ordernest-shipment-service.onrender.com";
+const fallbackShipmentBaseUrl = "https://ordernest-order-service.onrender.com";
 const shipmentBaseUrl = (import.meta.env.VITE_SHIPMENT_API_BASE_URL || fallbackShipmentBaseUrl).replace(/\/+$/, "");
 
 const shipmentApi = axios.create({
