@@ -4,6 +4,7 @@ import AdminLogin from "./pages/AdminLogin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
+import ChangePassword from "./pages/ChangePassword";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
 import OrderDetails from "./pages/OrderDetails";
@@ -30,6 +31,8 @@ export default function App() {
       />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/change-password" element={<ChangePassword />} />
+      <Route path="/reset-password" element={<ChangePassword />} />
       <Route
         path="/products"
         element={
