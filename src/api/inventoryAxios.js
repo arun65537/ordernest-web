@@ -1,11 +1,11 @@
 import axios from "axios";
 import { getToken } from "../utils/auth";
 
-const fallbackInventoryBaseUrl = "https://ordernest-inventory-service.onrender.com";
-const inventoryBaseUrl = (import.meta.env.VITE_INVENTORY_API_BASE_URL || fallbackInventoryBaseUrl).replace(/\/+$/, "");
+const fallbackGatewayBaseUrl = "https://ordernest-api-gateway.onrender.com";
+const gatewayBaseUrl = (import.meta.env.VITE_API_GATEWAY_BASE_URL || fallbackGatewayBaseUrl).replace(/\/+$/, "");
 
 const inventoryApi = axios.create({
-  baseURL: inventoryBaseUrl
+  baseURL: gatewayBaseUrl
 });
 
 inventoryApi.interceptors.request.use((config) => {

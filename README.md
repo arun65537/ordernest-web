@@ -27,8 +27,7 @@ npm install
 Update `.env` as needed:
 
 ```env
-VITE_AUTH_API_BASE_URL=https://auth-service-6f9r.onrender.com/
-VITE_INVENTORY_API_BASE_URL=https://ordernest-inventory-service.onrender.com/
+VITE_API_GATEWAY_BASE_URL=https://ordernest-api-gateway.onrender.com/
 ```
 
 3. Start the dev server:
@@ -56,16 +55,10 @@ App runs by default at `http://localhost:5173`.
 
 ## API integration
 
-Axios auth instance is defined in `src/api/axios.js` and uses:
+All Axios instances (`src/api/*.js`) use the API gateway base URL:
 
 ```js
-baseURL: import.meta.env.VITE_AUTH_API_BASE_URL
-```
-
-Axios inventory instance is defined in `src/api/inventoryAxios.js` and uses:
-
-```js
-baseURL: import.meta.env.VITE_INVENTORY_API_BASE_URL
+baseURL: import.meta.env.VITE_API_GATEWAY_BASE_URL
 ```
 
 Endpoints used:
@@ -94,8 +87,7 @@ Render static site settings:
   - Destination: `/index.html`
   - Action: `Rewrite`
 - Environment variables:
-  - `VITE_AUTH_API_BASE_URL=https://auth-service-6f9r.onrender.com/`
-  - `VITE_INVENTORY_API_BASE_URL=https://ordernest-inventory-service.onrender.com/`
+  - `VITE_API_GATEWAY_BASE_URL=https://ordernest-api-gateway.onrender.com/`
 
 # ordernest-web
 

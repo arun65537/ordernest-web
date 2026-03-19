@@ -1,11 +1,11 @@
 import axios from "axios";
 import { getToken } from "../utils/auth";
 
-const fallbackPaymentBaseUrl = "https://ordernest-payment-service.onrender.com";
-const paymentBaseUrl = (import.meta.env.VITE_PAYMENT_API_BASE_URL || fallbackPaymentBaseUrl).replace(/\/+$/, "");
+const fallbackGatewayBaseUrl = "https://ordernest-api-gateway.onrender.com";
+const gatewayBaseUrl = (import.meta.env.VITE_API_GATEWAY_BASE_URL || fallbackGatewayBaseUrl).replace(/\/+$/, "");
 
 const paymentApi = axios.create({
-  baseURL: paymentBaseUrl
+  baseURL: gatewayBaseUrl
 });
 
 paymentApi.interceptors.request.use((config) => {
