@@ -1,4 +1,4 @@
-import api from "../api/axios";
+import authApi from "../api/authApi";
 import { clearToken, getRefreshToken, getToken } from "./auth";
 
 export async function logoutSession() {
@@ -7,10 +7,20 @@ export async function logoutSession() {
 
   try {
     if (accessToken || refreshToken) {
-      await api.post("/api/auth/logout", {
-        refreshToken: refreshToken || "",
-        accessToken: accessToken || ""
-      });
+      await authApi.post(
+        "/api/auth/logout",
+        {
+          refreshToken: refreshToken || "",
+          accessToken: accessToken || ""
+        },
+        accessToken
+          ? {
+              headers: {
+                Authorization: `Bearer ${accessToken}`
+              }
+            }
+          : undefined
+      );
     }
   } catch {
     // Always clear local session even if server-side logout fails.
@@ -18,4 +28,3 @@ export async function logoutSession() {
     clearToken();
   }
 }
-
