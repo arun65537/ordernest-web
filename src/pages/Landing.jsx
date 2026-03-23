@@ -1,12 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { clearToken, isAuthenticated } from "../utils/auth";
+import { logoutSession } from "../utils/session";
 
 export default function Landing() {
   const navigate = useNavigate();
   const showLogout = isAuthenticated();
 
-  const handleLogout = () => {
-    clearToken();
+  const handleLogout = async () => {
+    await logoutSession();
     navigate("/", { replace: true });
   };
 

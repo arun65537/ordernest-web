@@ -5,6 +5,7 @@ import orderApi from "../api/orderAxios";
 import shipmentApi from "../api/shipmentAxios";
 import { clearToken } from "../utils/auth";
 import { formatCurrency } from "../utils/formatters";
+import { logoutSession } from "../utils/session";
 
 const SHIPMENT_STATUS_OPTIONS = ["CREATED", "SHIPPED", "DELIVERED", "RETURNED"];
 
@@ -27,8 +28,8 @@ export default function Dashboard() {
   const [stockUpdating, setStockUpdating] = useState(false);
   const [selectedShipmentStatus, setSelectedShipmentStatus] = useState("CREATED");
 
-  const logout = () => {
-    clearToken();
+  const logout = async () => {
+    await logoutSession();
     navigate("/", { replace: true });
   };
 

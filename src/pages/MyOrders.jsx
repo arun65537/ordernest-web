@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import orderApi from "../api/orderAxios";
 import { clearToken } from "../utils/auth";
 import { formatCurrency } from "../utils/formatters";
+import { logoutSession } from "../utils/session";
 
 const ORDER_STATUS = Object.freeze({
   CREATED: "CREATED",
@@ -67,6 +68,11 @@ export default function MyOrders() {
     return "bg-slate-100 text-slate-700 border-slate-200";
   };
 
+  const handleLogout = async () => {
+    await logoutSession();
+    navigate("/", { replace: true });
+  };
+
   return (
     <main className="min-h-screen px-4 py-8 sm:px-6">
       <section className="mx-auto w-full max-w-5xl rounded-3xl border border-primary-100 bg-white/95 p-5 shadow-2xl shadow-primary-100/70 backdrop-blur-sm sm:p-8">
@@ -85,10 +91,7 @@ export default function MyOrders() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                clearToken();
-                navigate("/", { replace: true });
-              }}
+              onClick={handleLogout}
               className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
               Logout

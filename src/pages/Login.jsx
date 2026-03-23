@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { clearToken, getPostLoginPath, isAuthenticated, setAuth } from "../utils/auth";
+import { logoutSession } from "../utils/session";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -27,8 +28,8 @@ export default function Login() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleLogout = () => {
-    clearToken();
+  const handleLogout = async () => {
+    await logoutSession();
     navigate("/", { replace: true });
   };
 

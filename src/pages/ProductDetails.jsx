@@ -5,6 +5,7 @@ import orderApi from "../api/orderAxios";
 import { clearToken } from "../utils/auth";
 import { getColorClass } from "../utils/colorSwatch";
 import { formatCurrency } from "../utils/formatters";
+import { logoutSession } from "../utils/session";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -16,8 +17,8 @@ export default function ProductDetails() {
   const [loadError, setLoadError] = useState("");
   const [orderError, setOrderError] = useState("");
 
-  const logout = () => {
-    clearToken();
+  const logout = async () => {
+    await logoutSession();
     navigate("/", { replace: true });
   };
 

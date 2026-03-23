@@ -5,6 +5,7 @@ import paymentApi from "../api/paymentAxios";
 import api from "../api/axios";
 import { clearToken } from "../utils/auth";
 import { formatCurrency } from "../utils/formatters";
+import { logoutSession } from "../utils/session";
 
 const RAZORPAY_CHECKOUT_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
 
@@ -242,6 +243,11 @@ export default function OrderDetails() {
     await fetchOrder(true);
   };
 
+  const handleLogout = async () => {
+    await logoutSession();
+    navigate("/", { replace: true });
+  };
+
   useEffect(() => {
     if (!paymentInitiated || isTerminalOrderStatus(currentOrderStatus)) {
       return undefined;
@@ -326,10 +332,7 @@ export default function OrderDetails() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                clearToken();
-                navigate("/", { replace: true });
-              }}
+              onClick={handleLogout}
               className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
               Logout

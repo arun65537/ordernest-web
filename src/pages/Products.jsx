@@ -4,6 +4,7 @@ import inventoryApi from "../api/inventoryAxios";
 import { clearToken } from "../utils/auth";
 import { getColorClass } from "../utils/colorSwatch";
 import { formatCurrency } from "../utils/formatters";
+import { logoutSession } from "../utils/session";
 
 export default function Products() {
   const navigate = useNavigate();
@@ -52,8 +53,8 @@ export default function Products() {
     };
   }, [navigate]);
 
-  const logout = () => {
-    clearToken();
+  const logout = async () => {
+    await logoutSession();
     navigate("/", { replace: true });
   };
 

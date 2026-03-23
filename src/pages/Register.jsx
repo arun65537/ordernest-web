@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { clearToken, isAuthenticated } from "../utils/auth";
+import { logoutSession } from "../utils/session";
 
 function validate(form) {
   const errors = {};
@@ -74,8 +75,8 @@ export default function Register() {
     }
   };
 
-  const handleLogout = () => {
-    clearToken();
+  const handleLogout = async () => {
+    await logoutSession();
     navigate("/", { replace: true });
   };
 

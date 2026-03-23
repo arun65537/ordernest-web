@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { clearToken, isAdmin, isAuthenticated, setAuth } from "../utils/auth";
+import { logoutSession } from "../utils/session";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -15,8 +16,8 @@ export default function AdminLogin() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleLogout = () => {
-    clearToken();
+  const handleLogout = async () => {
+    await logoutSession();
     navigate("/", { replace: true });
   };
 
