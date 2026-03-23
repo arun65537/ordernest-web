@@ -83,7 +83,15 @@ export function clearToken() {
 }
 
 export function isAuthenticated() {
-  return Boolean(getToken());
+  const hasAccessToken = Boolean(getToken());
+  const hasRefreshToken = Boolean(getRefreshToken());
+
+  if (!hasAccessToken && !hasRefreshToken) {
+    clearToken();
+    return false;
+  }
+
+  return true;
 }
 
 export function getRefreshToken() {
