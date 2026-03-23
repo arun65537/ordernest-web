@@ -1,14 +1,26 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { clearToken, getPostLoginPath, isAuthenticated, setToken } from "../utils/auth";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const showLogout = isAuthenticated();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const successMessage = location.state?.successMessage;
+    if (!successMessage) {
+      return;
+    }
+
+    setSuccess(successMessage);
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -23,6 +35,7 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
@@ -97,6 +110,7 @@ export default function Login() {
           </div>
 
           {error && <p className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
+          {success && <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p>}
 
           <button
             type="submit"

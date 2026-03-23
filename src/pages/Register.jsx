@@ -59,8 +59,10 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await api.post("/api/auth/register", form);
-      navigate("/login", { replace: true });
+      const { data } = await api.post("/api/auth/register", form);
+      const successMessage =
+        data?.message || "Registration successful. Check your email for the verification link.";
+      navigate("/login", { replace: true, state: { successMessage } });
     } catch (err) {
       const message =
         err?.response?.data?.message ||
