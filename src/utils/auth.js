@@ -1,5 +1,8 @@
 const TOKEN_KEY = "token";
 const LEGACY_AUTH_KEY = "auth";
+const AUTH_META_KEY = "auth_meta";
+const REFRESH_TOKEN_COOKIE = "ordernest_refresh_token";
+const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 function extractToken(payload) {
   return payload?.token || payload?.jwt || payload?.accessToken || null;
@@ -7,7 +10,15 @@ function extractToken(payload) {
 
 export function getAuth() {
   const token = getToken();
-  return token ? { token } : null;
+  if (!token) {
+    return null;
+  }
+
+  return {
+    token,
+    refreshToken: getRefreshToken(),
+    ...getAuthMeta()
+  };
 }
 
 export function getToken() {
@@ -41,6 +52,21 @@ export function setAuth(auth) {
   if (token) {
     localStorage.setItem(TOKEN_KEY, token);
   }
+
+  const refreshToken = auth?.refreshToken;
+  if (typeof refreshToken === "string" && refreshToken.trim()) {
+    setRefreshToken(refreshToken.trim());
+  }
+
+  localStorage.setItem(
+    AUTH_META_KEY,
+    JSON.stringify({
+      tokenType: auth?.tokenType || "Bearer",
+      expiresInSeconds: auth?.expiresInSeconds ?? null,
+      roles: Array.isArray(auth?.roles) ? auth.roles : null
+    })
+  );
+
   localStorage.removeItem(LEGACY_AUTH_KEY);
 }
 
@@ -52,10 +78,80 @@ export function setToken(token) {
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(LEGACY_AUTH_KEY);
+  localStorage.removeItem(AUTH_META_KEY);
+  clearRefreshToken();
 }
 
 export function isAuthenticated() {
   return Boolean(getToken());
+}
+
+export function getRefreshToken() {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const encodedName = encodeURIComponent(REFRESH_TOKEN_COOKIE) + "=";
+  const parts = document.cookie.split(";");
+
+  for (const rawPart of parts) {
+    const part = rawPart.trim();
+    if (part.startsWith(encodedName)) {
+      const value = part.slice(encodedName.length);
+      return value ? decodeURIComponent(value) : null;
+    }
+  }
+
+  return null;
+}
+
+export function setRefreshToken(refreshToken) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const secureFlag = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = [
+    `${encodeURIComponent(REFRESH_TOKEN_COOKIE)}=${encodeURIComponent(refreshToken)}`,
+    "Path=/",
+    `Max-Age=${REFRESH_TOKEN_TTL_SECONDS}`,
+    "SameSite=Strict",
+    secureFlag
+  ]
+    .filter(Boolean)
+    .join("; ");
+}
+
+export function clearRefreshToken() {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const secureFlag = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = [
+    `${encodeURIComponent(REFRESH_TOKEN_COOKIE)}=`,
+    "Path=/",
+    "Max-Age=0",
+    "SameSite=Strict",
+    secureFlag
+  ]
+    .filter(Boolean)
+    .join("; ");
+}
+
+export function getAuthMeta() {
+  const raw = localStorage.getItem(AUTH_META_KEY);
+  if (!raw) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    localStorage.removeItem(AUTH_META_KEY);
+    return {};
+  }
 }
 
 function decodeBase64Url(value) {

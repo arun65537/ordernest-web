@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../api/axios";
-import { clearToken, getPostLoginPath, isAuthenticated, setToken } from "../utils/auth";
+import { clearToken, getPostLoginPath, isAuthenticated, setAuth } from "../utils/auth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ export default function Login() {
         throw new Error("Missing token in login response.");
       }
 
-      setToken(token);
+      setAuth(data);
       navigate(getPostLoginPath(token), { replace: true });
     } catch (err) {
       const message =

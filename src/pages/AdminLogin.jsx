@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
-import { clearToken, isAdmin, isAuthenticated, setToken } from "../utils/auth";
+import { clearToken, isAdmin, isAuthenticated, setAuth } from "../utils/auth";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export default function AdminLogin() {
         throw new Error("Missing token in login response.");
       }
 
-      setToken(token);
+      setAuth(data);
       if (!isAdmin(token)) {
         clearToken();
         throw new Error("This account does not have admin access.");
