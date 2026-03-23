@@ -1,6 +1,6 @@
 import axios from "axios";
 import { gatewayBaseUrl } from "../api/gatewayBaseUrl";
-import { clearToken, getRefreshToken, setAuth } from "./auth";
+import { clearToken, setAuth } from "./auth";
 
 let refreshPromise = null;
 
@@ -13,14 +13,14 @@ export async function refreshAccessToken() {
     return refreshPromise;
   }
 
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) {
-    clearToken();
-    throw new Error("No refresh token available.");
-  }
-
   refreshPromise = axios
-    .post(`${gatewayBaseUrl}/api/auth/refresh`, { refreshToken })
+    .post(
+      `${gatewayBaseUrl}/api/auth/refresh`,
+      {},
+      {
+        withCredentials: true
+      }
+    )
     .then(({ data }) => {
       const accessToken = extractAccessToken(data);
       if (!accessToken) {
@@ -43,4 +43,3 @@ export async function refreshAccessToken() {
 
   return refreshPromise;
 }
-

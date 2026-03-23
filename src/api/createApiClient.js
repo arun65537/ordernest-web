@@ -18,7 +18,8 @@ function isAuthEndpoint(url) {
 
 export default function createApiClient() {
   const client = axios.create({
-    baseURL: gatewayBaseUrl
+    baseURL: gatewayBaseUrl,
+    withCredentials: true
   });
 
   client.interceptors.request.use((config) => {
@@ -54,4 +55,3 @@ export default function createApiClient() {
 
   return client;
 }
-
