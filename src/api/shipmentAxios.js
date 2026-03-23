@@ -1,19 +1,5 @@
-import axios from "axios";
-import { getToken } from "../utils/auth";
+import createApiClient from "./createApiClient";
 
-const fallbackGatewayBaseUrl = "https://ordernest-api-gateway.onrender.com";
-const gatewayBaseUrl = (import.meta.env.VITE_API_GATEWAY_BASE_URL || fallbackGatewayBaseUrl).replace(/\/+$/, "");
-
-const shipmentApi = axios.create({
-  baseURL: gatewayBaseUrl
-});
-
-shipmentApi.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+const shipmentApi = createApiClient();
 
 export default shipmentApi;
