@@ -41,7 +41,7 @@ export default function ChangePassword() {
 
     setLoading(true);
     try {
-      const { data } = await api.post("/api/auth/change-password", {
+      const { data } = await api.post("/api/auth/password-reset/confirm", {
         token,
         newPassword: password
       });

@@ -325,6 +325,13 @@ export default function OrderDetails() {
           <div className="ml-auto flex items-center gap-2">
             <button
               type="button"
+              onClick={() => navigate("/profile")}
+              className="rounded-lg border border-primary-200 bg-white px-4 py-2 text-sm font-semibold text-primary-700 transition hover:bg-primary-50"
+            >
+              Profile
+            </button>
+            <button
+              type="button"
               onClick={() => navigate("/orders")}
               className="rounded-lg border border-primary-200 bg-white px-4 py-2 text-sm font-semibold text-primary-700 transition hover:bg-primary-50"
             >
