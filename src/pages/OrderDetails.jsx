@@ -3,9 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import orderApi from "../api/orderAxios";
 import paymentApi from "../api/paymentAxios";
 import api from "../api/axios";
-import { clearToken } from "../utils/auth";
 import { formatCurrency } from "../utils/formatters";
 import { logoutSession } from "../utils/session";
+import { handleUnauthorizedRedirect } from "../utils/unauthorized";
 
 const RAZORPAY_CHECKOUT_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
 
@@ -101,8 +101,7 @@ export default function OrderDetails() {
         }
       } catch (err) {
         if (err?.response?.status === 401 || err?.response?.status === 403) {
-          clearToken();
-          navigate("/login", { replace: true });
+          handleUnauthorizedRedirect();
           return;
         }
         setError(err?.response?.data?.message || "Unable to load order details.");
@@ -198,8 +197,7 @@ export default function OrderDetails() {
       razorpayInstance.open();
     } catch (err) {
       if (err?.response?.status === 401 || err?.response?.status === 403) {
-        clearToken();
-        navigate("/login", { replace: true });
+        handleUnauthorizedRedirect();
         return;
       }
       setPaymentError(err?.response?.data?.message || "Unable to initiate payment. Please try again.");
@@ -224,8 +222,7 @@ export default function OrderDetails() {
       setPaymentInitiated(false);
     } catch (err) {
       if (err?.response?.status === 401 || err?.response?.status === 403) {
-        clearToken();
-        navigate("/login", { replace: true });
+        handleUnauthorizedRedirect();
         return;
       }
       setCancelError(err?.response?.data?.message || "Unable to cancel order. Please try again.");
@@ -264,8 +261,7 @@ export default function OrderDetails() {
         }
       } catch (err) {
         if (err?.response?.status === 401 || err?.response?.status === 403) {
-          clearToken();
-          navigate("/login", { replace: true });
+          handleUnauthorizedRedirect();
           return;
         }
       }

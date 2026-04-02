@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import inventoryApi from "../api/inventoryAxios";
 import orderApi from "../api/orderAxios";
 import shipmentApi from "../api/shipmentAxios";
-import { clearToken } from "../utils/auth";
 import { formatCurrency } from "../utils/formatters";
 import { logoutSession } from "../utils/session";
+import { handleUnauthorizedRedirect } from "../utils/unauthorized";
 
 const SHIPMENT_STATUS_OPTIONS = ["CREATED", "SHIPPED", "DELIVERED", "RETURNED"];
 
@@ -34,8 +34,7 @@ export default function Dashboard() {
   };
 
   const handleUnauthorized = () => {
-    clearToken();
-    navigate("/admin/login", { replace: true });
+    handleUnauthorizedRedirect();
   };
 
   const fetchOrderById = async (event) => {

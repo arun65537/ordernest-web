@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import inventoryApi from "../api/inventoryAxios";
-import { clearToken } from "../utils/auth";
 import { getColorClass } from "../utils/colorSwatch";
 import { formatCurrency } from "../utils/formatters";
 import { logoutSession } from "../utils/session";
+import { handleUnauthorizedRedirect } from "../utils/unauthorized";
 
 export default function Products() {
   const navigate = useNavigate();
@@ -29,8 +29,7 @@ export default function Products() {
       } catch (err) {
         if (!cancelled) {
           if (err?.response?.status === 401 || err?.response?.status === 403) {
-            clearToken();
-            navigate("/login", { replace: true });
+            handleUnauthorizedRedirect();
             return;
           }
 

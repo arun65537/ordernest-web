@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import orderApi from "../api/orderAxios";
-import { clearToken } from "../utils/auth";
 import { formatCurrency } from "../utils/formatters";
 import { logoutSession } from "../utils/session";
+import { handleUnauthorizedRedirect } from "../utils/unauthorized";
 
 const ORDER_STATUS = Object.freeze({
   CREATED: "CREATED",
@@ -29,8 +29,7 @@ export default function MyOrders() {
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       if (err?.response?.status === 401 || err?.response?.status === 403) {
-        clearToken();
-        navigate("/login", { replace: true });
+        handleUnauthorizedRedirect();
         return;
       }
 
