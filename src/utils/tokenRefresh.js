@@ -1,6 +1,7 @@
 import axios from "axios";
 import { gatewayBaseUrl } from "../api/gatewayBaseUrl";
 import { clearToken, setAuth } from "./auth";
+import { handleUnauthorizedRedirect } from "./unauthorized";
 
 let refreshPromise = null;
 
@@ -33,6 +34,8 @@ export async function refreshAccessToken() {
     .catch((error) => {
       const status = error?.response?.status;
       if (status === 401 || status === 403 || status === 400) {
+        handleUnauthorizedRedirect();
+      } else {
         clearToken();
       }
       throw error;

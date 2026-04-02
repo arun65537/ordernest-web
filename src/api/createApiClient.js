@@ -2,6 +2,7 @@ import axios from "axios";
 import { getToken } from "../utils/auth";
 import { refreshAccessToken } from "../utils/tokenRefresh";
 import { gatewayBaseUrl } from "./gatewayBaseUrl";
+import { handleUnauthorizedRedirect } from "../utils/unauthorized";
 
 function isAuthEndpoint(url) {
   if (!url || typeof url !== "string") {
@@ -37,6 +38,9 @@ export default function createApiClient() {
       const status = error?.response?.status;
 
       if (!originalRequest || status !== 401 || originalRequest._retry || isAuthEndpoint(originalRequest.url)) {
+        if (status === 401 || status === 403) {
+          handleUnauthorizedRedirect();
+        }
         throw error;
       }
 
@@ -48,6 +52,7 @@ export default function createApiClient() {
         originalRequest.headers.Authorization = `Bearer ${refreshedAccessToken}`;
         return client(originalRequest);
       } catch {
+        handleUnauthorizedRedirect();
         throw error;
       }
     }
